@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BaconTechnologies/Server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BaconTechnologies/Server/issues"
+  },
+  "homepage": "https://github.com/BaconTechnologies/Server#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "lodash": "^4.6.1"
+  }
+}

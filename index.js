@@ -58,6 +58,8 @@ app.get('/api/zone/:zoneName', function(request, response) {
   const zoneName = request.params.zoneName;
   store.getZone(zoneName)
   .then(function(zoneData) {
+    zoneData.availability = zoneData.capacity - zoneData.occupancy;
+    zoneData.name = zoneName;
     response.json(zoneData)
   })
   .catch(function(errorObj) {
@@ -91,7 +93,12 @@ app.get('/api/zone/:zoneName/enter', function(request, response) {
     return store.setNextParkingZone(determineParkingZoneForNextDriver(parkingZones));
   })
   .then(function() {
-    response.end();
+    return store.getZone(zoneName);
+  })
+  .then(function(zoneData) {
+    zoneData.name = zoneName;
+    zoneData.availability = zoneData.capacity - zoneData.occupancy;
+    response.json(zoneData);
   })
   .catch(function(errorObj) {
     response.status(400);
@@ -110,7 +117,12 @@ app.get('/api/zone/:zoneName/exit', function(request, response) {
     return store.setNextParkingZone(determineParkingZoneForNextDriver(parkingZones));
   })
   .then(function() {
-    response.end();
+    return store.getZone(zoneName);
+  })
+  .then(function(zoneData) {
+    zoneData.name = zoneName;
+    zoneData.availability = zoneData.capacity - zoneData.occupancy;
+    response.json(zoneData);
   })
   .catch(function(errorObj) {
     response.status(400);

@@ -1,16 +1,28 @@
 'use strict';
 
 // Third party libraries
-var http = require('http'); // For the server
-var _ = require('lodash'); // Utility methods
-var path = require('path'); // For managing filesystem paths
-var express = require('express'); // Web framework
-var bodyParser = require('body-parser');
-var store = require('./store.js'); // Our own library to command the database
-var cors = require('cors');
+let http = require('http'); // For the server
+let _ = require('lodash'); // Utility methods
+let path = require('path'); // For managing filesystem paths
+let express = require('express'); // Web framework
+let bodyParser = require('body-parser');
+let store = require('./store.js'); // Our own library to command the database
+let cors = require('cors');
 
 // Instatiate the express server
-var app = express();
+let app = express();
+
+let determineParkingZoneForNextDriver = function(parkingZones) {
+  let leastOccupiedZoneName = null;
+  let leastOccupiedZoneData = null;
+  _.forIn(parkingZones, function(zoneData, zoneName) {
+    if (!leastOccupiedZoneName || zoneData.occupancy < leastOccupiedZoneData.occupancy) {
+      leastOccupiedZoneName = zoneName;
+      leastOccupiedZoneData = zoneData;
+    }
+  });
+  return leastOccupiedZoneName;
+}
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -19,13 +31,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/api/zone', function(request, response) {
   store.getAllZones()
-    .then(function(zonesData) {
-      response.json(zonesData);
-    })
-    .catch(function(errorObj) {
-      response.satus(400);
-      response.json(errorObj);
-    });
+  .then(function(zonesData) {
+    response.json(zonesData);
+  })
+  .catch(function(errorObj) {
+    response.satus(400);
+    response.json(errorObj);
+  });
 });
 
 
@@ -72,26 +84,38 @@ app.delete('/api/zone/:zoneName', function(request, response) {
 app.get('/api/zone/:zoneName/enter', function(request, response) {
   const zoneName = request.params.zoneName;
   store.incrementZoneOccupancy(zoneName)
-    .then(function(result) {
-      response.json(result);
-    })
-    .catch(function(errorObj) {
-      response.status(400);
-      response.json(errorObj);
-    });
+  .then(function(result) {
+    return store.getAllZones();
+  })
+  .then(function(parkingZones) {
+    return store.setNextParkingZone(determineParkingZoneForNextDriver(parkingZones));
+  })
+  .then(function() {
+    response.end();
+  })
+  .catch(function(errorObj) {
+    response.status(400);
+    response.json(errorObj);
+  });
 });
 
 
 app.get('/api/zone/:zoneName/exit', function(request, response) {
   const zoneName = request.params.zoneName;
   store.decrementZoneOccupancy(zoneName)
-    .then(function(result) {
-      response.json(result);
-    })
-    .catch(function(errorObj) {
-      response.status(400);
-      response.json(errorObj);
-    });
+  .then(function(result) {
+    return store.getAllZones();
+  })
+  .then(function(parkingZones) {
+    return store.setNextParkingZone(determineParkingZoneForNextDriver(parkingZones));
+  })
+  .then(function() {
+    response.end();
+  })
+  .catch(function(errorObj) {
+    response.status(400);
+    response.json(errorObj);
+  });
 });
 
 

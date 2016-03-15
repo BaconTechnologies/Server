@@ -109,11 +109,38 @@ const decrementZoneOccupancy = function(zoneName) {
   return deferred.promise;
 };
 
+const setNextParkingZone = function(zoneName) {
+  const deferred = Q.defer();
+
+  db.child('nextToPark').set(zoneName, function(errorObj) {
+    if (!errorObj) {
+      deferred.resolve(zoneName);
+    } else {
+      deferred.reject(errorObj)
+    }
+  });
+
+  return deferred.promise;
+}
+
+const getNextParkingZone = function() {
+  const deferred = Q.defer();
+
+  db.child('nextToPark').once('value', function(snapshot) {
+    deferred.resolve(snapshot.val());
+  }, function(error) {
+    deferred.reject(error);
+  });
+
+  return deferred.promise;
+}
+
 module.exports = {
   getAllZones: getAllZones,
   createZone: createZone,
   deleteZone: deleteZone,
   getZone: getZone,
   incrementZoneOccupancy: incrementZoneOccupancy,
-  decrementZoneOccupancy: decrementZoneOccupancy
+  decrementZoneOccupancy: decrementZoneOccupancy,
+  setNextParkingZone: setNextParkingZone
 };

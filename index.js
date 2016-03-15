@@ -131,4 +131,4 @@ app.get('/api/zone/:zoneName/exit', function(request, response) {
 });
 
 
-http.createServer(app).listen(8000);
+http.createServer(app).listen(process.env.PORT || 8000);

@@ -55,13 +55,19 @@ const getZone = function(zoneName) {
 };
 
 
-const traverseToChildHandle = function(startingHandle, fn, params, times) {
-  let caller = startingHandle
-  _.each(params, function(p) {
-    caller = _.invoke(caller, fn, p);
+const deleteZone = function(zoneName) {
+  const deferred = Q.defer();
+
+  zones.child(zoneName).remove(function(error) {
+    if (!error) {
+      deferred.resolve();
+    } else {
+      deferred.reject();
+    }
   });
-  return caller;
-};
+
+  return deferred.promise;
+}
 
 
 const incrementZoneOccupancy = function(zoneName) {
@@ -106,6 +112,7 @@ const decrementZoneOccupancy = function(zoneName) {
 module.exports = {
   getAllZones: getAllZones,
   createZone: createZone,
+  deleteZone: deleteZone,
   getZone: getZone,
   incrementZoneOccupancy: incrementZoneOccupancy,
   decrementZoneOccupancy: decrementZoneOccupancy

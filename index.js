@@ -7,10 +7,12 @@ var path = require('path'); // For managing filesystem paths
 var express = require('express'); // Web framework
 var bodyParser = require('body-parser');
 var store = require('./store.js'); // Our own library to command the database
+var cors = require('cors');
 
 // Instatiate the express server
 var app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 
@@ -44,6 +46,20 @@ app.get('/api/zone/:zoneName', function(request, response) {
   store.getZone(zoneName)
   .then(function(zoneData) {
     response.json(zoneData)
+  })
+  .catch(function(errorObj) {
+    response.status(400);
+    response.json(errorObj);
+  });
+});
+
+
+app.delete('/api/zone/:zoneName', function(request, response) {
+  const zoneName = request.params.zoneName;
+  store.deleteZone(zoneName)
+  .then(function() {
+    response.status(204);
+    response.end();
   })
   .catch(function(errorObj) {
     response.status(400);

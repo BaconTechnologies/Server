@@ -19,6 +19,9 @@
   "homepage": "https://github.com/BaconTechnologies/Server#readme",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "cors": "^2.7.1",
+    "express": "^4.13.4",
+    "firebase": "^2.4.1",
     "lodash": "^4.6.1",
     "q": "^1.4.1"
   }

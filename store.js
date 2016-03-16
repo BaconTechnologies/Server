@@ -45,6 +45,27 @@ const zoneIdInUse = function(zonesData, zoneId) {
 };
 
 
+const updateZones = function(zonesData) {
+  const deferred = Q.defer();
+
+  zones.update(zonesData, function(error) {
+    if (!error) {
+      deferred.resolve({
+        msg: 'Zones updated succefsully',
+        zonesData: zonesData
+      });
+    } else {
+      deferred.reject({
+        errorMsg: 'Could not update zones',
+        zonesData: zonesData
+      });
+    }
+  });
+
+  return deferred.promise;
+};
+
+
 const getAllZones = function() {
   const deferred = Q.defer();
 
@@ -299,6 +320,7 @@ module.exports = {
   db: db,
   zones: zones,
   suggestedZone: suggestedZone,
+  updateZones: updateZones,
   getAllZones: getAllZones,
   createZone: createZone,
   deleteZone: deleteZone,

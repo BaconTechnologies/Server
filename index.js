@@ -69,6 +69,18 @@ app.get('/', function(request, response) {
 });
 
 
+app.put('/api/zone', function(request, response) {
+  const zonesData = request.body;
+  store.updateZones(zonesData)
+  .then(function(dbResponse) {
+    response.json(zonesData);
+  })
+  .catch(function(dbError) {
+    response.status(400).end();
+  });
+});
+
+
 app.get('/api/zone', function(request, response) {
   store.getAllZones()
   .then(function(allZonesData) {

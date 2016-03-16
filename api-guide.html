@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <style>
+  body {
+    margin-bottom: 150px;
+  }
+
+  .section {
+    margin-top: 80px;
+    border-top: 2px solid #eee;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="jumbotron">
+      <h1 class="text-center">Bacon Technologies Parking Brain API Guide</h1>
+      <p>In this page you will find the different endpoints in the API that you
+      can make requests to, aswell as the data they expect to receive and the
+      data they may send in response.</p>
+    </div>
+
+    <div class="section">
+      <h2>GET /api/zones</h2>
+
+      <p>Returns an array of objects, where each object contains the data
+      corresponding to a parking zone. The pieces of data included for each
+      zone are: </p>
+
+      <ul>
+        <li>id : string</li>
+        <li>name : string</li>
+        <li>capacity : integer</li>
+        <li>occupancy : integer</li>
+        <li>availability: integer</li>
+      </ul>
+
+      <p>Example</p>
+
+      <pre>[
+  {
+    "id":"Z1"
+    "name":"Zona 1",
+    "capacity":15,
+    "occupancy":6,
+    "availability":9,
+  },
+  {
+    "id":"Z2"
+    "name":"Zona 2",
+    "capacity":40,
+    "occupancy":15,
+    "availability":25,
+  },
+  {
+    "id":"Z3"
+    "name":"Zona 3",
+    "capacity":25,
+    "occupancy":0,
+    "availability":25,
+  }
+]</pre>
+    </div>
+
+    <div class="section">
+      <h2>GET api/zone/:zoneId</h2>
+
+      <p>Returns an object containing the following information for the zone
+      with the given id <b>:zoneId</b></p>
+
+      <ul>
+        <li>id : string</li>
+        <li>name : string</li>
+        <li>capacity : integer</li>
+        <li>occupancy : integer</li>
+        <li>availability: integer</li>
+      </ul>
+
+      <p>Example:</p>
+
+      <pre>{
+  "id":"Z3"
+  "name":"Zona 3",
+  "capacity":25,
+  "occupancy":0,
+  "availability":25,
+}</pre>
+
+    </div>
+
+    <div class="section">
+      <h2>POST /api/zone</h2>
+
+      <p>Creates a new zone. The endpoint must receive a JavaScript object in
+      JSON format with the following attributes:</p>
+
+      <ul>
+        <li>id : string</li>
+        <li>name : string</li>
+        <li>capacity : integer</li>
+        <li>occupancy : integer</li>
+      </ul>
+
+      <div class="alert alert-warning"> Note how the <b>availability</b> attribute
+      is not send, this attribute is computed by the appropiate endpoints.
+      </div>
+
+    </div>
+
+    <div class="section">
+      <h2>DELETE /api/zone/:zoneId</h2>
+
+      <p>Deletes the zone with the given id <b>:zoneId</b></p>
+    </div>
+
+    <div class="section">
+      <h2>PUT /api/zone/:zoneId</h2>
+
+      <p>This endpoint must recive in JSON format the attributes and their values to update. The attributes
+      must be a subset of the following:</p>
+
+      <ul>
+        <li>name : string</li>
+        <li>capacity : integer</li>
+        <li>occupancy : integer</li>
+      </ul>
+
+      <div class="alert alert-warning"> Zone's ID's are immutable, which is why
+      they cannot be modified. In the rare case you wish to change a Zone's id
+      you must delete it and recreate it with the new id. </div>
+    </div>
+
+    <div class="section">
+      <h2>GET /api/zone/:zoneId/enter</h2>
+
+      <p>Increments the occupancy of the zone with the given id <b>:zoneId</b>
+      by one, by one as long as it is not already at it's limit (the
+      capacity).</p>
+
+      <p>The endpoint returns the updated zone data as JSON, as it would have been
+      returned by the <b>GET /api/zone/:zoneId</b> endpoint.</p>
+
+    </div>
+
+    <div class="section">
+      <h2>GET /api/zone/:zoneId/exit</h2>
+
+      <p>Decrements the occupancy of the zone with the given id <b>:zoneId</b>
+      by one, by one as long as it is not already at zero.</p>
+
+      <p>The endpoint returns the updated zone data as JSON, as it would have been
+      returned by the <b>GET /api/zone/:zoneId</b> endpoint.</p>
+    </div>
+
+  </div>
+  <script src="http://code.jquery.com/jquery-2.2.1.min.js" charset="utf-8"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</body>
+</html>

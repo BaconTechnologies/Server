@@ -9,105 +9,8 @@ const FIREBASE_URL = 'http://scorching-fire-7518.firebaseIO.com';
 
 const db = new Firebase(FIREBASE_URL);
 const zones = db.child('zones');
+const suggestedZone = db.child('suggestedZone');
 
-
-const createZone = function(data) {
-  const deferred = Q.defer();
-
-  const zoneName = data.name;
-  const zoneData = _.omit(data, 'name');
-
-  zones.child(data.name).set(zoneData, function(error) {
-    if (!error) {
-      deferred.resolve();
-    } else {
-      deferred.reject();
-    }
-  });
-
-  return deferred.promise;
-};
-
-
-const getAllZones = function() {
-  const deferred = Q.defer();
-
-  zones.once('value', function(snapshot) {
-    deferred.resolve(snapshot.val());
-  }, function(errorObj) {
-    deferred.reject(errorObj);
-  });
-
-  return deferred.promise;
-};
-
-
-const getZone = function(zoneName) {
-  const deferred = Q.defer();
-
-  zones.child(zoneName).once('value', function(snapshot) {
-    deferred.resolve(snapshot.val());
-  }, function(errorObj) {
-    deferred.reject(errorObj);
-  });
-
-  return deferred.promise;
-};
-
-
-const deleteZone = function(zoneName) {
-  const deferred = Q.defer();
-
-  zones.child(zoneName).remove(function(error) {
-    if (!error) {
-      deferred.resolve();
-    } else {
-      deferred.reject();
-    }
-  });
-
-  return deferred.promise;
-}
-
-
-const incrementZoneOccupancy = function(zoneName) {
-  const deferred = Q.defer();
-
-  getZone(zoneName)
-    .then(function(zoneData) {
-      zones.child(zoneName).update({
-        occupancy: zoneData.occupancy += 1
-      }, function(error) {
-        if (!error) {
-          deferred.resolve({ message: 'ok' });
-        } else {
-          deferred.reject({ message: 'denied' });
-        }
-      })
-    });
-
-  return deferred.promise;
-};
-
-
-const decrementZoneOccupancy = function(zoneName) {
-  const deferred = Q.defer();
-
-  getZone(zoneName)
-    .then(function(zoneData) {
-      zones.child(zoneName).update({
-        occupancy: zoneData.occupancy -= 1
-      }, function(error) {
-        if (!error) {
-          deferred.resolve({ message: 'ok' });
-        } else {
-          deferred.reject({ message: 'denied' });
-        }
-      })
-    });
-
-  return deferred.promise;
-};
 
 const setNextParkingZone = function(zoneName) {
   const deferred = Q.defer();
@@ -123,6 +26,7 @@ const setNextParkingZone = function(zoneName) {
   return deferred.promise;
 }
 
+
 const getNextParkingZone = function() {
   const deferred = Q.defer();
 
@@ -135,12 +39,222 @@ const getNextParkingZone = function() {
   return deferred.promise;
 }
 
+const zoneIdInUse = function(zonesData, zoneId) {
+  return _.findIndex(zonesData, { id: zoneId }) !== -1;
+};
+
+
+const getAllZones = function() {
+  const deferred = Q.defer();
+
+  zones.once('value', function(snapshot) {
+    const allZonesData = snapshot.val();
+    const allZonesArray = _.map(_.toPairs(allZonesData), (pair) => {
+      pair[1].availability = pair[1].capacity - pair[1].occupancy;
+      pair[1].id = pair[0];
+      return pair[1];
+    });
+    deferred.resolve(allZonesArray);
+  }, function(error) {
+    deferred.reject({
+      errorMsg: error
+    });
+  });
+
+  return deferred.promise;
+};
+
+
+const createZone = function(zoneData) {
+  const deferred = Q.defer();
+  const zoneId = zoneData.id;
+  const _zoneData = _.omit(_.clone(zoneData), 'id');
+  const errorMsg = '';
+
+  getAllZones()
+  .then(function(allZonesData) {
+    if (zoneIdInUse(allZonesData, zoneId)) {
+      console.log('in use');
+      deferred.reject({
+        errorMsg: 'Cannot create zone, given id already exists.',
+        zoneData: zoneData
+      });
+    } else {
+      zones.child(zoneId).set(_zoneData, function(error) {
+        if (!error) {
+          deferred.resolve({
+            msg: 'Zone created successfully',
+            data: zoneData
+          });
+        } else {
+          deferred.reject({
+            errorMsg: 'Unknown error creating zone.',
+            zoneData: zoneData
+          });
+        }
+      });
+    }
+  });
+
+  return deferred.promise;
+};
+
+
+const deleteZone = function(zoneId) {
+  const deferred = Q.defer();
+
+  zones.child(zoneId).remove(function(error) {
+    if (!error) {
+      deferred.resolve();
+    } else {
+      deferred.reject();
+    }
+  });
+
+  return deferred.promise;
+};
+
+
+const getZone = function(zoneId) {
+  const deferred = Q.defer();
+
+  zones.child(zoneId).once('value', function(snapshot) {
+    const zoneData = snapshot.val();
+
+    if (zoneData) {
+      zoneData.id = zoneId;
+      zoneData.availability = zoneData.capacity - zoneData.occupancy;
+      deferred.resolve(zoneData);
+    } else {
+      deferred.reject({
+        errorMsg: 'No zone with given id found.',
+        zoneId: zoneId
+      });
+    }
+  }, function(error) {
+    deferred.reject({
+      errorMsg: 'Unkown error retrieving zone data.',
+      zoneId: zoneId
+    });
+  });
+
+  return deferred.promise;
+}
+
+
+const updateZone = function(zoneId, updatedZoneData) {
+  const deferred = Q.defer();
+  const zone = zones.child(zoneId);
+
+  zone.once('value', function(snapshot) {
+    if (snapshot.exists()) {
+      zone.update(_.omit(updatedZoneData, ['id', 'availability']), function(error) {
+        if (!error) {
+          updatedZoneData.id = zoneId;
+          updatedZoneData.availability = updatedZoneData.capacity - updatedZoneData.occupancy;
+          deferred.resolve(updatedZoneData);
+        } else {
+          deferred.reject({
+            errorMsg: 'Uknown error updating zone.',
+            updatedZoneData: updatedZoneData
+          });
+        }
+      });
+    } else {
+      deferred.reject({
+        errorMsg: 'Cannot update a zone that doesn\'t exist',
+        zoneId: zoneId,
+        updatedZoneData: updatedZoneData
+      });
+    }
+  });
+
+  return deferred.promise;
+};
+
+
+const makeZoneUpdater = function(modifierFn) {
+  return function(zoneId) {
+    var deferred = Q.defer();
+
+    getZone(zoneId)
+    .then(function(prevZoneData) {
+      const updatedZoneData = modifierFn(prevZoneData);
+      updateZone(updatedZoneData.id, _.omit(updatedZoneData, 'id'))
+      .then(function(dbResponse) {
+        deferred.resolve(dbResponse);
+      })
+      .catch(function(dbError) {
+        deferred.reject(dbError);
+      });
+    });
+
+    return deferred.promise;
+  }
+};
+
+
+const incrementZoneOccupancy = makeZoneUpdater(function(prevZoneData) {
+  const newZoneData = _.clone(prevZoneData);
+  if (prevZoneData.occupancy < prevZoneData.capacity) {
+    newZoneData.occupancy += 1
+  }
+  return newZoneData;
+});
+
+
+const decrementZoneOccupancy = makeZoneUpdater(function(prevZoneData) {
+  const newZoneData = _.clone(prevZoneData);
+  if (prevZoneData.occupancy > 0) {
+    newZoneData.occupancy -= 1
+  }
+  return newZoneData;
+});
+
+
+const setSuggestedZone = function(zoneId) {
+  var deferred = Q.defer();
+
+  suggestedZone.set(zoneId, function(error) {
+    if (!error) {
+      deferred.resolve(zoneId);
+    } else {
+      deferred.reject(zoneId);
+    }
+  });
+
+  return deferred.promise;
+};
+
+
+const getSuggestedZone = function() {
+  var deferred = Q.defer();
+
+  suggestedZone.once('value', function(snapshot) {
+    getZone(snapshot.val())
+    .then(function(dbResponse) {
+      deferred.resolve(dbResponse);
+    })
+    .catch(function(dbError) {
+      deferred.reject(dbError);
+    })
+  });
+
+  return deferred.promise();
+}
+
+
 module.exports = {
+  db: db,
+  zones: zones,
+  suggestedZone: suggestedZone,
   getAllZones: getAllZones,
   createZone: createZone,
   deleteZone: deleteZone,
   getZone: getZone,
+  updateZone: updateZone,
   incrementZoneOccupancy: incrementZoneOccupancy,
   decrementZoneOccupancy: decrementZoneOccupancy,
-  setNextParkingZone: setNextParkingZone
+  setSuggestedZone: setSuggestedZone,
+  getSuggestedZone, getSuggestedZone
 };

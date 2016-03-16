@@ -176,7 +176,32 @@ app.get('/api/places', function(request, response) {
     console.error(error);
     response.status(400).end();
   });
-})
+});
+
+
+app.post('/api/places', function(request, response) {
+  const placesData = request.body;
+  store.setZonePlaces(placesData)
+  .then(function(dbResponse) {
+    response.status(200).end();
+  })
+  .catch(function(dbError) {
+    console.error(dbError);
+    response.status(400).end();
+  });
+});
+
+
+app.delete('/api/places/:placeName', function(request, response) {
+    const placeName = request.params.placeName;
+    store.deletePlace(placeName)
+    .then(function() {
+      response.status(204).end();
+    })
+    .catch(function() {
+      response.status(400).end();
+    });
+});
 
 
 http.createServer(app).listen(process.env.PORT || 8000);

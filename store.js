@@ -12,29 +12,6 @@ const zones = db.child('zones');
 const places = db.child('places');
 const suggestedZone = db.child('suggestedZone');
 
-places.set({
-  "Centro de congresos": {
-    zoneID: "Z1",
-    category: "event"
-  },
-  "Cafetería": {
-    zoneID: "Z2",
-    category: "food",
-  },
-  "Residencias": {
-    zoneID: "Z3",
-    category: "home",
-  },
-  "Fortaleza Azul": {
-    zoneID: "Z2",
-    category: "sports"
-  },
-  "Biblioteca": {
-    zoneID: "Z1",
-    category: "academic"
-  }
-});
-
 
 const setNextParkingZone = function(zoneName) {
   const deferred = Q.defer();
@@ -267,6 +244,24 @@ const getSuggestedZone = function() {
 };
 
 
+const setZonePlaces = function(placesData) {
+  var deferred = Q.defer();
+
+  places.set(placesData, function(error) {
+    if (!error) {
+      deferred.resolve();
+    } else {
+      deferred.reject({
+        errorMsg: 'Uknnown error setting places.',
+        placesData: placesData
+      });
+    }
+  })
+
+  return deferred.promise;
+};
+
+
 const getZonePlaces = function()  {
   const deferred = Q.defer();
 
@@ -278,6 +273,26 @@ const getZonePlaces = function()  {
 
   return deferred.promise;
 };
+
+
+const deletePlace = function(placeName) {
+  const deferred = Q.defer();
+
+  places.child(placeName).set(null, function(error) {
+    if (!error) {
+      deferred.resolve({
+        msg: 'Delete succesfull'
+      });
+    } else {
+      deferred.reject({
+        errorMsg: 'Could not delete place.',
+        placeName: placeName
+      });
+    }
+  });
+
+  return deferred.promise;
+}
 
 
 module.exports = {
@@ -293,5 +308,7 @@ module.exports = {
   decrementZoneOccupancy: decrementZoneOccupancy,
   setSuggestedZone: setSuggestedZone,
   getSuggestedZone: getSuggestedZone,
-  getZonePlaces, getZonePlaces
+  getZonePlaces: getZonePlaces,
+  setZonePlaces: setZonePlaces,
+  deletePlace: deletePlace
 };

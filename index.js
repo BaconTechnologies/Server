@@ -9,6 +9,18 @@ const bodyParser = require('body-parser');
 const store = require('./store.js'); // Our own library to command the database
 const cors = require('cors');
 
+_.mixin({
+    'sortKeysBy': function (obj, comparator) {
+        var keys = _.sortBy(_.keys(obj), function (key) {
+            return comparator ? comparator(obj[key], key) : key;
+        });
+
+        return _.object(keys, _.map(keys, function (key) {
+            return obj[key];
+        }));
+    }
+});
+
 // Instatiate the express server
 const app = express();
 
@@ -26,12 +38,10 @@ const getFirstNomEmptyParkingZone = function(parkingZones) {
   let suggestedZone = null;
 
   _.each(parkingZones, function(parkingZoneData) {
-    console.log(suggestedZone);
     if (_.isNull(suggestedZone) && parkingZoneData.occupancy < parkingZoneData.capacity) {
       suggestedZone = parkingZoneData;
     }
   });
-  console.log('-------');
 
   return suggestedZone.id;
 };
@@ -69,6 +79,15 @@ app.get('/api/zone', function(request, response) {
   })
 });
 
+app.get('/api/zones', function(request, response) {
+  store.getAllZones()
+  .then(function(allZonesData) {
+    response.json(allZonesData);
+  })
+  .catch(function(dbResponse) {
+    response.status(400).json(dbResponse);
+  })
+});
 
 app.post('/api/zone', function(request, response) {
   const zoneData = request.body;

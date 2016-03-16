@@ -9,7 +9,31 @@ const FIREBASE_URL = 'http://scorching-fire-7518.firebaseIO.com';
 
 const db = new Firebase(FIREBASE_URL);
 const zones = db.child('zones');
+const places = db.child('places');
 const suggestedZone = db.child('suggestedZone');
+
+places.set({
+  "Centro de congresos": {
+    zoneID: "Z1",
+    category: "event"
+  },
+  "Cafetería": {
+    zoneID: "Z2",
+    category: "food",
+  },
+  "Residencias": {
+    zoneID: "Z3",
+    category: "home",
+  },
+  "Fortaleza Azul": {
+    zoneID: "Z2",
+    category: "sports"
+  },
+  "Biblioteca": {
+    zoneID: "Z1",
+    category: "academic"
+  }
+});
 
 
 const setNextParkingZone = function(zoneName) {
@@ -74,7 +98,6 @@ const createZone = function(zoneData) {
   getAllZones()
   .then(function(allZonesData) {
     if (zoneIdInUse(allZonesData, zoneId)) {
-      console.log('in use');
       deferred.reject({
         errorMsg: 'Cannot create zone, given id already exists.',
         zoneData: zoneData
@@ -241,7 +264,20 @@ const getSuggestedZone = function() {
   });
 
   return deferred.promise();
-}
+};
+
+
+const getZonePlaces = function()  {
+  const deferred = Q.defer();
+
+  places.once('value', function(snapshot) {
+    deferred.resolve(snapshot.val())
+  }, function(error) {
+    deferred.reject(error);
+  });
+
+  return deferred.promise;
+};
 
 
 module.exports = {
@@ -256,5 +292,6 @@ module.exports = {
   incrementZoneOccupancy: incrementZoneOccupancy,
   decrementZoneOccupancy: decrementZoneOccupancy,
   setSuggestedZone: setSuggestedZone,
-  getSuggestedZone, getSuggestedZone
+  getSuggestedZone: getSuggestedZone,
+  getZonePlaces, getZonePlaces
 };

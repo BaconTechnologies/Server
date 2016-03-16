@@ -12,7 +12,7 @@ const cors = require('cors');
 // Instatiate the express server
 const app = express();
 
-const determineSuggestedParkingZone = function(parkingZones) {
+const getMoreAvailableZone = function(parkingZones) {
   return _.reduce(parkingZones, function(bestSoFar, currentZone) {
     if (!bestSoFar || currentZone.availability > bestSoFar.availability) {
       return currentZone;
@@ -22,10 +22,27 @@ const determineSuggestedParkingZone = function(parkingZones) {
   }, null).id;
 };
 
+const getFirstNomEmptyParkingZone = function(parkingZones) {
+  let suggestedZone = null;
+
+  _.each(parkingZones, function(parkingZoneData) {
+    console.log(suggestedZone);
+    if (_.isNull(suggestedZone) && parkingZoneData.occupancy < parkingZoneData.capacity) {
+      suggestedZone = parkingZoneData;
+    }
+  });
+  console.log('-------');
+
+  return suggestedZone.id;
+};
+
 store.zones.on('value', function(snapshot) {
   store.getAllZones()
   .then(function(allZonesData) {
-    store.setSuggestedZone(determineSuggestedParkingZone(allZonesData))
+    store.setSuggestedZone(getFirstNomEmptyParkingZone(allZonesData))
+    .then(function(dbResponse) {
+      console.log(dbResponse);
+    })
     .catch(function(dbError) {
       console.error(dbError);
     });
@@ -130,6 +147,17 @@ app.get('/api/zone/:zoneId/exit', function(request, response) {
     response.status(400).end();
   });
 });
+
+app.get('/api/places', function(request, response) {
+  store.getZonePlaces()
+  .then(function(data) {
+    response.json(data);
+  })
+  .catch(function(dbError) {
+    console.error(error);
+    response.status(400).end();
+  });
+})
 
 
 http.createServer(app).listen(process.env.PORT || 8000);

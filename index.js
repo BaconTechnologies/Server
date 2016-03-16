@@ -49,7 +49,7 @@ const getFirstNomEmptyParkingZone = function(parkingZones) {
 store.zones.on('value', function(snapshot) {
   store.getAllZones()
   .then(function(allZonesData) {
-    store.setSuggestedZone(getFirstNomEmptyParkingZone(allZonesData))
+    store.setSuggestedZone(getMoreAvailableZone(allZonesData))
     .then(function(dbResponse) {
       console.log(dbResponse);
     })

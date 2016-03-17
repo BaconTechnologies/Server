@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>store.js &mdash; Bacon Technologies Server 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Bacon Technologies Server 1.0.0 documentation" href="index.html" />
+    <link rel="prev" title="Application’s Database" href="firebase.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="store-js">
+<h1><cite>store.js</cite><a class="headerlink" href="#store-js" title="Permalink to this headline">¶</a></h1>
+<p>The <cite>store.js</cite> module encapsulates all the logic of interfacing with the
+database, it exports a number of function specialized to perform a single
+action that will impact the database. Each of the exported functions
+returns a JavaScript promise that gets resolved or rejected once the
+database actions it involves are succesfull or encounter an error. Allowing
+for an asynchronous program flow.</p>
+<div class="section" id="zoneidinuse-zonesdata-zoneid">
+<h2>zoneIdInUse(zonesData, zoneId)<a class="headerlink" href="#zoneidinuse-zonesdata-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>This function receives the data about all of the zones in the database,
+and a string representing a zoneId, it returns whether the zoneId is
+valid (meaning a zone is using it as it id) or not. This function is
+only used internally and is not exported.</p>
+</div>
+<div class="section" id="updatezones-zonesdata">
+<h2>updateZones(zonesData)<a class="headerlink" href="#updatezones-zonesdata" title="Permalink to this headline">¶</a></h2>
+<p>This function takes a JavaScript object literal with the same structure
+as the <em>zones</em> child of the database. It creates any zone not currently
+in the database, and overrides the data of those that already exist.
+Any zone not included in the <em>zonesData</em> remains unchanged.</p>
+</div>
+<div class="section" id="getallzones">
+<h2>getAllZones()<a class="headerlink" href="#getallzones" title="Permalink to this headline">¶</a></h2>
+<p>Transforms the data of all the zones in the database, to an array of JavaScript
+object literals, where the id (key) has been made into an attribute and
+returns it.</p>
+</div>
+<div class="section" id="createzone-zonedata">
+<h2>createZone(zoneData)<a class="headerlink" href="#createzone-zonedata" title="Permalink to this headline">¶</a></h2>
+<p>This function takes the data of a zone as an object literal, which must contain
+the attributes <em>id, name, capacity, occupancy</em> and creates it, given that the
+zone with the given id doesn&#8217;t already exists in which case it informs the
+caller of the collition.</p>
+</div>
+<div class="section" id="getzone-zoneid">
+<h2>getZone(zoneId)<a class="headerlink" href="#getzone-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>Returns JavaScript object literal with the data of a zone with the given zoneId,
+unless there exists no zone with that id in which case the user is informed of
+the error.</p>
+</div>
+<div class="section" id="makezoneupdater-modifierfn">
+<h2>makeZoneUpdater(modifierFn)<a class="headerlink" href="#makezoneupdater-modifierfn" title="Permalink to this headline">¶</a></h2>
+<p>This is an internal function used to create functions that modify a specific
+attribute of a given zone, setting it to the result of a given function.</p>
+</div>
+<div class="section" id="incrementzoneoccupancy-zoneid">
+<h2>incrementZoneOccupancy(zoneId)<a class="headerlink" href="#incrementzoneoccupancy-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>This function was created by the <cite>makeZoneUpdater()</cite> function and when called
+increments the occupancy of the zone with the given id by one, unless the
+occupancy already equals the capacity in which case it does nothing.</p>
+</div>
+<div class="section" id="decrementzoneoccupancy-zoneid">
+<h2>decrementZoneOccupancy(zoneId)<a class="headerlink" href="#decrementzoneoccupancy-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>This function was created by the <cite>makeZoneUpdater()</cite> function and when called
+decrements the occupancy of the zone with the given id by one, unless the
+occupancy already equals the capacity in which case it does nothing.</p>
+</div>
+<div class="section" id="setsuggestedzone-zoneid">
+<h2>setSuggestedZone(zoneId)<a class="headerlink" href="#setsuggestedzone-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>This function takes a string the id of a zone and sets it as the
+value of the suggestedZone database child node.</p>
+</div>
+<div class="section" id="getsuggestedzone">
+<h2>getSuggestedZone()<a class="headerlink" href="#getsuggestedzone" title="Permalink to this headline">¶</a></h2>
+<p>Returns the suggestedZone.</p>
+</div>
+<div class="section" id="setzoneplaces-placesdata">
+<h2>setZonePlaces(placesData)<a class="headerlink" href="#setzoneplaces-placesdata" title="Permalink to this headline">¶</a></h2>
+<p>This function takes a JavaScript object literal with the same structure as the
+<em>places</em> database child and set it. As a consequence, any non existing places
+are created, exisitng places are overriden and places not included in the given
+data are not modified.</p>
+</div>
+<div class="section" id="getzoneplaces">
+<h2>getZonePlaces()<a class="headerlink" href="#getzoneplaces" title="Permalink to this headline">¶</a></h2>
+<p>This function returns all the data about the places. (The <em>places</em>) child of the
+database.</p>
+</div>
+<div class="section" id="deleteplace-placename">
+<h2>deletePlace(placeName)<a class="headerlink" href="#deleteplace-placename" title="Permalink to this headline">¶</a></h2>
+<p>This function takes the name (key) of a place and deletes it from the
+database.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><cite>store.js</cite></a><ul>
+<li><a class="reference internal" href="#zoneidinuse-zonesdata-zoneid">zoneIdInUse(zonesData, zoneId)</a></li>
+<li><a class="reference internal" href="#updatezones-zonesdata">updateZones(zonesData)</a></li>
+<li><a class="reference internal" href="#getallzones">getAllZones()</a></li>
+<li><a class="reference internal" href="#createzone-zonedata">createZone(zoneData)</a></li>
+<li><a class="reference internal" href="#getzone-zoneid">getZone(zoneId)</a></li>
+<li><a class="reference internal" href="#makezoneupdater-modifierfn">makeZoneUpdater(modifierFn)</a></li>
+<li><a class="reference internal" href="#incrementzoneoccupancy-zoneid">incrementZoneOccupancy(zoneId)</a></li>
+<li><a class="reference internal" href="#decrementzoneoccupancy-zoneid">decrementZoneOccupancy(zoneId)</a></li>
+<li><a class="reference internal" href="#setsuggestedzone-zoneid">setSuggestedZone(zoneId)</a></li>
+<li><a class="reference internal" href="#getsuggestedzone">getSuggestedZone()</a></li>
+<li><a class="reference internal" href="#setzoneplaces-placesdata">setZonePlaces(placesData)</a></li>
+<li><a class="reference internal" href="#getzoneplaces">getZonePlaces()</a></li>
+<li><a class="reference internal" href="#deleteplace-placename">deletePlace(placeName)</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="firebase.html" title="previous chapter">Application&#8217;s Database</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/store.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Taller Vertical '16 Team 2.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/store.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

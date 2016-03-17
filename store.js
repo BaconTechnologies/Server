@@ -13,33 +13,6 @@ const places = db.child('places');
 const suggestedZone = db.child('suggestedZone');
 
 
-const setNextParkingZone = function(zoneName) {
-  const deferred = Q.defer();
-
-  db.child('nextToPark').set(zoneName, function(errorObj) {
-    if (!errorObj) {
-      deferred.resolve(zoneName);
-    } else {
-      deferred.reject(errorObj)
-    }
-  });
-
-  return deferred.promise;
-}
-
-
-const getNextParkingZone = function() {
-  const deferred = Q.defer();
-
-  db.child('nextToPark').once('value', function(snapshot) {
-    deferred.resolve(snapshot.val());
-  }, function(error) {
-    deferred.reject(error);
-  });
-
-  return deferred.promise;
-}
-
 const zoneIdInUse = function(zonesData, zoneId) {
   return _.findIndex(zonesData, { id: zoneId }) !== -1;
 };

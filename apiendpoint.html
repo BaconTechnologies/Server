@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>REST API &mdash; Bacon Technologies Server 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Bacon Technologies Server 1.0.0 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="rest-api">
+<h1>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="get">
+<h2>GET /<a class="headerlink" href="#get" title="Permalink to this headline">¶</a></h2>
+<p>Displays a page that documentates the api endpoints</p>
+</div>
+<div class="section" id="put-api-zone">
+<h2>PUT /api/zone<a class="headerlink" href="#put-api-zone" title="Permalink to this headline">¶</a></h2>
+<p>Upadates a zone with the given application/json content type payload.</p>
+</div>
+<div class="section" id="get-api-zone">
+<h2>GET /api/zone<a class="headerlink" href="#get-api-zone" title="Permalink to this headline">¶</a></h2>
+<p>Returns the data of all the zones in the application</p>
+</div>
+<div class="section" id="get-api-zones">
+<h2>GET /api/zones<a class="headerlink" href="#get-api-zones" title="Permalink to this headline">¶</a></h2>
+<p>Returns the data of all the zones in the application. Alias for GET /api/zone</p>
+</div>
+<div class="section" id="post-api-zone">
+<h2>POST /api/zone<a class="headerlink" href="#post-api-zone" title="Permalink to this headline">¶</a></h2>
+<p>Creates a zone with the given application/json content type payload.</p>
+</div>
+<div class="section" id="get-api-zone-zoneid">
+<h2>GET /api/zone/:zoneId<a class="headerlink" href="#get-api-zone-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>Returns the data of a zone with the given id.</p>
+</div>
+<div class="section" id="delete-api-zone-zoneid">
+<h2>DELETE /api/zone/:zoneId<a class="headerlink" href="#delete-api-zone-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>Deletes the zone with the given id.</p>
+</div>
+<div class="section" id="put-api-zone-zoneid">
+<h2>PUT /api/zone/:zoneId<a class="headerlink" href="#put-api-zone-zoneid" title="Permalink to this headline">¶</a></h2>
+<p>Updates the zone with the given id, with the given application/json
+content type json.</p>
+</div>
+<div class="section" id="get-api-zone-zoneid-enter">
+<h2>GET /api/zone/:zoneId/enter<a class="headerlink" href="#get-api-zone-zoneid-enter" title="Permalink to this headline">¶</a></h2>
+<p>Increments the occupancy of the given zone by one, as long as it doesn&#8217;t
+put the occupancy over the capacity.</p>
+</div>
+<div class="section" id="api-zone-zoneid-exit">
+<h2>/api/zone/:zoneId/exit<a class="headerlink" href="#api-zone-zoneid-exit" title="Permalink to this headline">¶</a></h2>
+<p>Decrements the occupancy of the given zone by one, as long as it doesn&#8217;t
+put it below 0.</p>
+</div>
+<div class="section" id="get-api-places">
+<h2>GET /api/places<a class="headerlink" href="#get-api-places" title="Permalink to this headline">¶</a></h2>
+<p>Returns the data of all the places in the database</p>
+</div>
+<div class="section" id="post-api-places">
+<h2>POST /api/places<a class="headerlink" href="#post-api-places" title="Permalink to this headline">¶</a></h2>
+<p>Sets the data of the given places in application/json content type.</p>
+</div>
+<div class="section" id="delete-api-places-placename">
+<h2>DELETE /api/places/:placeName<a class="headerlink" href="#delete-api-places-placename" title="Permalink to this headline">¶</a></h2>
+<p>Deletes the place with the given name from the database.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">REST API</a><ul>
+<li><a class="reference internal" href="#get">GET /</a></li>
+<li><a class="reference internal" href="#put-api-zone">PUT /api/zone</a></li>
+<li><a class="reference internal" href="#get-api-zone">GET /api/zone</a></li>
+<li><a class="reference internal" href="#get-api-zones">GET /api/zones</a></li>
+<li><a class="reference internal" href="#post-api-zone">POST /api/zone</a></li>
+<li><a class="reference internal" href="#get-api-zone-zoneid">GET /api/zone/:zoneId</a></li>
+<li><a class="reference internal" href="#delete-api-zone-zoneid">DELETE /api/zone/:zoneId</a></li>
+<li><a class="reference internal" href="#put-api-zone-zoneid">PUT /api/zone/:zoneId</a></li>
+<li><a class="reference internal" href="#get-api-zone-zoneid-enter">GET /api/zone/:zoneId/enter</a></li>
+<li><a class="reference internal" href="#api-zone-zoneid-exit">/api/zone/:zoneId/exit</a></li>
+<li><a class="reference internal" href="#get-api-places">GET /api/places</a></li>
+<li><a class="reference internal" href="#post-api-places">POST /api/places</a></li>
+<li><a class="reference internal" href="#delete-api-places-placename">DELETE /api/places/:placeName</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/apiendpoint.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Taller Vertical '16 Team 2.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/apiendpoint.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -417,7 +417,9 @@ const getParkingHistory = function() {
   parkedCars.once('value', function(parkedCarsSnapshot) {
 
     parkingHistory.once('value', function(parkingHistorySnapshot) {
-      deferred.resolve(_.values(parkedCarsSnapshot.val() || {}).concat(_.values(parkingHistorySnapshot.val())));
+      const data = _.values(parkedCarsSnapshot.val() || {}).concat(_.values(parkingHistorySnapshot.val())));
+      console.log(data);
+      deferred.resolve(data);
     }, function(error) {
       if(error) {
         deferred.reject('Could not get parking history from database.');

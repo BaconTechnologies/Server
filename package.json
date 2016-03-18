@@ -24,6 +24,7 @@
     "firebase": "^2.4.1",
     "lodash": "^4.6.1",
     "moment": "^2.12.0",
+    "moment-timezone": "^0.5.2",
     "q": "^1.4.1"
   }
 }

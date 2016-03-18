@@ -8,7 +8,7 @@ const express = require('express'); // Web framework
 const bodyParser = require('body-parser');
 const store = require('./store.js'); // Our own library to command the database
 const cors = require('cors');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 _.mixin({
     'sortKeysBy': function (obj, comparator) {
@@ -254,8 +254,8 @@ app.get('/api/parking/history', function(request, response) {
     if (!_.isUndefined(query.startDay) && !_.isNull(query.startDay) && query.startDay !== '') {
       filtered = _.filter(filtered, function(datum) {
         // return moment(parseInt(query.startDay)).isSame(moment(parseInt(datum.entryTimestamp)), 'day');
-        const given = moment(parseInt(query.startDay));
-        const actual = moment(parseInt(datum.entryTimestamp));
+        const given = moment(parseInt(query.startDay)).tz('America/Mexico_City');
+        const actual = moment(parseInt(datum.entryTimestamp)).tz('America/Mexico_City');
 
         // console.log(given.date(), given.month(), given.year());
         // console.log(actual.date(), actual.month(), actual.year());
@@ -268,8 +268,8 @@ app.get('/api/parking/history', function(request, response) {
       filtered = _.filter(filtered, function(datum) {
         // return moment(parseInt(query.endDay)).isSame(moment(parseInt(datum.exitTimestamp)), 'day');
 
-        const given = moment(parseInt(query.endDay));
-        const actual = moment(parseInt(datum.exitTimestamp));
+        const given = moment(parseInt(query.endDay)).tz('America/Mexico_City');
+        const actual = moment(parseInt(datum.exitTimestamp)).tz('America/Mexico_City');
 
         // console.log(given.date(), given.month(), given.year());
         // console.log(actual.date(), actual.month(), actual.year());

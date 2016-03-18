@@ -175,11 +175,7 @@ const makeZoneUpdater = function(modifierFn) {
 
     getZone(zoneId)
     .then(function(prevZoneData) {
-      if (prevZoneData.occupancy >= prevZoneData.capacity) {
-        deferred.reject('Zone full')
-      }
-
-      const updatedZoneData = modifierFn(prevZoneData);
+      const updatedZoneData = modifierFn(prevZoneData, deferred);
       updateZone(updatedZoneData.id, _.omit(updatedZoneData, 'id'))
       .then(function(dbResponse) {
         deferred.resolve(dbResponse);
@@ -194,7 +190,11 @@ const makeZoneUpdater = function(modifierFn) {
 };
 
 
-const incrementZoneOccupancy = makeZoneUpdater(function(prevZoneData) {
+const incrementZoneOccupancy = makeZoneUpdater(function(prevZoneData, deferred) {
+  if (prevZoneData.occupancy >= prevZoneData.capacity) {
+    deferred.reject('Zone full');
+  }
+
   const newZoneData = _.clone(prevZoneData);
   if (prevZoneData.occupancy < prevZoneData.capacity) {
     newZoneData.occupancy += 1
@@ -203,7 +203,11 @@ const incrementZoneOccupancy = makeZoneUpdater(function(prevZoneData) {
 });
 
 
-const decrementZoneOccupancy = makeZoneUpdater(function(prevZoneData) {
+const decrementZoneOccupancy = makeZoneUpdater(function(prevZoneData, deferred) {
+  if (prevZoneData.occupancy == 0) {
+    deferred.reject('Zone occupancy cannot drop below 0');
+  }
+
   const newZoneData = _.clone(prevZoneData);
   if (prevZoneData.occupancy > 0) {
     newZoneData.occupancy -= 1

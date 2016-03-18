@@ -238,11 +238,11 @@ app.get('/api/parking/history', function(request, response) {
 
   let filterObj = {};
 
-  if (query.plate !== '') {
+  if (!_.isUndefined(query.plate) && query.plate !== '') {
     filterObj.plates = query.plate;
   }
 
-  if (query.zone !== 'ALL') {
+  if (!_.isUndefined(query.zone) && query.zone !== 'ALL') {
     filterObj.zoneId = query.zone;
   }
 
@@ -251,13 +251,13 @@ app.get('/api/parking/history', function(request, response) {
   .then(function(parkingHistory) {
     filtered = _.filter(parkingHistory, filterObj)
 
-    if (query.startDay !== '') {
+    if (!_.isUndefined(query.startDay) && query.startDay !== '') {
       filtered = _.filter(filtered, function(datum) {
         return moment(parseInt(query.startDay)).isSame(moment(parseInt(datum.entryTimestamp)), 'day');
       });
     }
 
-    if (query.endDay !== '') {
+    if (!_.isUndefined(query.endDay) && query.endDay !== '') {
       filtered = _.filter(filtered, function(datum) {
         return moment(parseInt(query.endDay)).isSame(moment(parseInt(datum.exitTimestamp)), 'day');
       });

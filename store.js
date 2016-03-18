@@ -11,6 +11,8 @@ const db = new Firebase(FIREBASE_URL);
 const zones = db.child('zones');
 const places = db.child('places');
 const suggestedZone = db.child('suggestedZone');
+const parkedCars = db.child('parkedCars');
+const parkingHistory = db.child('parkingHistory');
 
 
 const zoneIdInUse = function(zonesData, zoneId) {
@@ -173,6 +175,10 @@ const makeZoneUpdater = function(modifierFn) {
 
     getZone(zoneId)
     .then(function(prevZoneData) {
+      if (prevZoneData.occupancy >= prevZoneData.capacity) {
+        deferred.reject('Zone full')
+      }
+
       const updatedZoneData = modifierFn(prevZoneData);
       updateZone(updatedZoneData.id, _.omit(updatedZoneData, 'id'))
       .then(function(dbResponse) {
@@ -286,7 +292,142 @@ const deletePlace = function(placeName) {
   });
 
   return deferred.promise;
-}
+};
+
+const registerVehicleInZone = function(zoneId, plates) {
+  var deferred = Q.defer();
+
+  parkedCars.child(plates).set({
+    plates: plates,
+    zoneId: zoneId,
+    entryTimestamp: Firebase.ServerValue.TIMESTAMP
+  }, function(error) {
+    if (!error) {
+      deferred.resolve('Vehicle registered into zone');
+    } else {
+      deferred.reject('Could not register vehicle into zone');
+    }
+  })
+
+  return deferred.promise;
+};
+
+
+const unregisterVehicleFromZone = function(zoneId, plates) {
+  var deferred = Q.defer();
+
+  parkedCars.child(plates).set(null, function(error) {
+    if (!error) {
+      deferred.resolve('Vehicle registered into zone');
+    } else {
+      deferred.reject('Could not register vehicle into zone');
+    }
+  })
+
+  return deferred.promise;
+};
+
+
+const prepareForVehicleExitFromZone = function(zoneId, plates) {
+  var deferred = Q.defer();
+
+  parkedCars.child(plates).update({
+    zoneId: zoneId,
+    exitTimestamp: Firebase.ServerValue.TIMESTAMP
+  }, function(error) {
+    if (!error) {
+      parkedCars.child(plates).once('value', function(snapshot) {
+        console.log(snapshot.val());
+        deferred.resolve(snapshot.val())
+      }, function() { deferred.reject('Error preparing vehicle for exit') });
+    } else {
+      deferred.reject('Error preparing vehicle for exit');
+    }
+  });
+
+  return deferred.promise;
+};
+
+
+const getParkedVehicleData = function(plates) {
+  const deferred = Q.defer();
+
+  parkedCars.child(plates).once('value', function(snapshot) {
+    if (snapshot.exists()) {
+      deferred.resolve(_.extend(snapshot.val(), {plates: plates}));
+    } else {
+      deferred.reject('Could not read parking data for vehicle with plates ' + plates);
+    }
+  });
+
+  return deferred.promise;
+};
+
+const registerVehicleStay = function(vehicleStayData) {
+  const deferred = Q.defer();
+
+  parkingHistory.push(vehicleStayData, function(error) {
+    if (!error) {
+      deferred.resolve(vehicleStayData)
+    } else {
+      deferred.reject('Could not register vehicle stay');
+    }
+  });
+
+  return deferred.promise;
+};
+
+const registerVehicleMovement = function(zoneId, plates) {
+  const deferred = Q.defer();
+
+  let vehicle = parkedCars.child(plates);
+
+  vehicle.once('value', function(snapshot) {
+    if (snapshot.exists()) {
+      decrementZoneOccupancy(zoneId)
+      .then(_.partial(prepareForVehicleExitFromZone, zoneId, plates))
+      .then(_.partial(getParkedVehicleData, plates))
+      .then(registerVehicleStay)
+      .then(_.partial(unregisterVehicleFromZone, zoneId, plates))
+      .then(function(zoneData) {
+        deferred.resolve(zoneData)
+      })
+      .catch(function(dbError) {
+        deferred.reject(dbError);
+      });
+    } else {
+      incrementZoneOccupancy(zoneId)
+      .then(_.partial(registerVehicleInZone, zoneId, plates))
+      .then(function(zoneData) {
+        deferred.resolve(zoneData)
+      })
+      .catch(function(dbError) {
+        deferred.reject(dbError);
+      });
+    }
+  });
+
+  return deferred.promise;
+};
+
+
+const getParkingHistory = function() {
+  const deferred = Q.defer();
+
+  parkedCars.once('value', function(parkedCarsSnapshot) {
+
+    parkingHistory.once('value', function(parkingHistorySnapshot) {
+      deferred.resolve(_.values(parkedCarsSnapshot.val() || {}).concat(_.values(parkingHistorySnapshot.val())));
+    }, function(error) {
+      if(error) {
+        deferred.reject('Could not get parking history from database.');
+      }
+    });
+
+  });
+
+  return deferred.promise;
+};
 
 
 module.exports = {
@@ -305,5 +446,7 @@ module.exports = {
   getSuggestedZone: getSuggestedZone,
   getZonePlaces: getZonePlaces,
   setZonePlaces: setZonePlaces,
-  deletePlace: deletePlace
+  deletePlace: deletePlace,
+  registerVehicleMovement: registerVehicleMovement,
+  getParkingHistory: getParkingHistory
 };

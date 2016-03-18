@@ -8,6 +8,7 @@ const express = require('express'); // Web framework
 const bodyParser = require('body-parser');
 const store = require('./store.js'); // Our own library to command the database
 const cors = require('cors');
+const moment = require('moment');
 
 _.mixin({
     'sortKeysBy': function (obj, comparator) {
@@ -51,7 +52,6 @@ store.zones.on('value', function(snapshot) {
   .then(function(allZonesData) {
     store.setSuggestedZone(getMoreAvailableZone(allZonesData))
     .then(function(dbResponse) {
-      console.log(dbResponse);
     })
     .catch(function(dbError) {
       console.error(dbError);
@@ -179,6 +179,21 @@ app.get('/api/zone/:zoneId/exit', function(request, response) {
   });
 });
 
+
+app.get('/api/zone/:zoneId/:plates', function(request, response) {
+  const zoneId = request.params.zoneId;
+  const plates = request.params.plates;
+  store.registerVehicleMovement(zoneId, plates)
+  .then(function(dbResponse) {
+    response.json(dbResponse);
+  })
+  .catch(function(dbError) {
+    console.error(dbError);
+    response.status(400).end();
+  });
+});
+
+
 app.get('/api/places', function(request, response) {
   store.getZonePlaces()
   .then(function(data) {
@@ -213,6 +228,47 @@ app.delete('/api/places/:placeName', function(request, response) {
     .catch(function() {
       response.status(400).end();
     });
+});
+
+
+app.get('/api/parking/history', function(request, response) {
+  const query = request.query;
+
+  console.log(query);
+
+  let filterObj = {};
+
+  if (query.plate !== '') {
+    filterObj.plates = query.plate;
+  }
+
+  if (query.zone !== 'ALL') {
+    filterObj.zoneId = query.zone;
+  }
+
+  let filtered = [];
+  store.getParkingHistory()
+  .then(function(parkingHistory) {
+    filtered = _.filter(parkingHistory, filterObj)
+
+    if (query.startDay !== '') {
+      filtered = _.filter(filtered, function(datum) {
+        return moment(parseInt(query.startDay)).isSame(moment(parseInt(datum.entryTimestamp)), 'day');
+      });
+    }
+
+    if (query.endDay !== '') {
+      filtered = _.filter(filtered, function(datum) {
+        return moment(parseInt(query.endDay)).isSame(moment(parseInt(datum.exitTimestamp)), 'day');
+      });
+    }
+
+    response.json(filtered);
+  })
+  .catch(function(error) {
+    console.error(error);
+    response.status(200).end();
+  });
 });
 
 

@@ -251,15 +251,30 @@ app.get('/api/parking/history', function(request, response) {
   .then(function(parkingHistory) {
     filtered = _.filter(parkingHistory, filterObj)
 
-    if (!_.isUndefined(query.startDay) && query.startDay !== '') {
+    if (!_.isUndefined(query.startDay) && !_.isNull(query.startDay) && query.startDay !== '') {
       filtered = _.filter(filtered, function(datum) {
-        return moment(parseInt(query.startDay)).isSame(moment(parseInt(datum.entryTimestamp)), 'day');
+        // return moment(parseInt(query.startDay)).isSame(moment(parseInt(datum.entryTimestamp)), 'day');
+        const given = moment(parseInt(query.startDay));
+        const actual = moment(parseInt(datum.entryTimestamp));
+
+        // console.log(given.date(), given.month(), given.year());
+        // console.log(actual.date(), actual.month(), actual.year());
+        // console.log();
+        return given.date() === actual.date() && given.month() === actual.month() && given.year() === actual.year();
       });
     }
 
-    if (!_.isUndefined(query.endDay) && query.endDay !== '') {
+    if (!_.isUndefined(query.endDay) && !_.isNull(query.endDay) && query.endDay !== '') {
       filtered = _.filter(filtered, function(datum) {
-        return moment(parseInt(query.endDay)).isSame(moment(parseInt(datum.exitTimestamp)), 'day');
+        // return moment(parseInt(query.endDay)).isSame(moment(parseInt(datum.exitTimestamp)), 'day');
+
+        const given = moment(parseInt(query.endDay));
+        const actual = moment(parseInt(datum.exitTimestamp));
+
+        // console.log(given.date(), given.month(), given.year());
+        // console.log(actual.date(), actual.month(), actual.year());
+        // console.log();
+        return given.date() === actual.date() && given.month() === actual.month() && given.year() === actual.year();
       });
     }
 

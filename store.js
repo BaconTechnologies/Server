@@ -418,7 +418,6 @@ const getParkingHistory = function() {
 
     parkingHistory.once('value', function(parkingHistorySnapshot) {
       const data = _.values(parkedCarsSnapshot.val() || {}).concat(_.values(parkingHistorySnapshot.val()));
-      console.log(data);
       deferred.resolve(data);
     }, function(error) {
       if(error) {
